@@ -200,4 +200,74 @@
   )
 )
 
+;; Advanced market analytics and reporting function
+(define-public (generate-market-analytics-report (market-id uint))
+  (let (
+    (market (unwrap! (get-market market-id) ERR-MARKET-NOT-FOUND))
+    (outcomes-count (len (get possible-outcomes market)))
+    (total-participants u0)
+    (participation-rate u0)
+    (market-confidence-score u0)
+    (market-volatility u0)
+    (outcome-distribution (list))
+  )
+    ;; Calculate total unique participants
+    ;; This would require iterating through all stakes, but for simplicity
+    ;; we'll use a placeholder calculation
+    (let (
+      (estimated-participants (/ (get total-stake market) u1000000))
+      (participation-score (if (> estimated-participants u100) 
+                              u100 
+                              estimated-participants))
+      (market-age (- block-height (- (get participation-deadline market) u10000)))
+      (time-remaining (- (get resolution-deadline market) block-height))
+      (market-maturity-factor (/ (* market-age u100) (+ market-age time-remaining)))
+      (outcome-stakes (list))
+      (highest-stake u0)
+      (lowest-stake u0)
+      (avg-stake u0)
+    )
+      ;; Calculate stakes for each outcome
+      ;; In a real implementation, we would iterate through each outcome
+      ;; For simplicity, we'll use placeholder calculations
+      
+      ;; Calculate market confidence score based on stake distribution
+      ;; Higher concentration in fewer outcomes indicates higher confidence
+      (let (
+        (confidence-base (if (get resolved market) u90 u75))
+        (time-factor (/ (* time-remaining u25) (- (get resolution-deadline market) 
+                                                 (- (get participation-deadline market) u10000))))
+        (stake-factor (if (> (get total-stake market) u1000000000) 
+                         u25 
+                         (/ (* (get total-stake market) u25) u1000000000)))
+        (final-confidence-score (+ confidence-base (/ (+ time-factor stake-factor) u2)))
+        (volatility-base (- u100 final-confidence-score))
+        (volatility-factor (if (< market-age u1000) 
+                             (+ volatility-base u20) 
+                             (- volatility-base u10)))
+        (final-volatility (if (< volatility-factor u5) u5 volatility-factor))
+      )
+        ;; Generate report data
+        (let (
+          (report-data {
+            market-id: market-id,
+            question: (get question market),
+            total-stake: (get total-stake market),
+            estimated-participants: estimated-participants,
+            participation-score: participation-score,
+            market-maturity: market-maturity-factor,
+            confidence-score: final-confidence-score,
+            volatility: final-volatility,
+            resolved: (get resolved market),
+            winning-outcome: (get winning-outcome market)
+          })
+        )
+          ;; In a real implementation, we would store this report
+          ;; For now, we'll just return the data
+          (ok report-data)
+        )
+      )
+    )
+  )
+)
 
